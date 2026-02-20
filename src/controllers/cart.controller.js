@@ -53,41 +53,29 @@ async function addToCart(req, res) {
   return res.status(201).json({ message: 'Savatchaga qo\'shildi' });
 }
 
-async function updateCartItem(req, res) {
-  const { id } = req.params;
-  const { quantity } = req.body;
+async function removeFromCart(req, res) {
+  const { ticketId } = req.body;
 
-  if (!quantity || Number(quantity) < 1) {
-    return res.status(400).json({ message: 'quantity kamida 1 bo\'lishi kerak' });
+  if (!ticketId) {
+    return res.status(400).json({ message: 'ticketId majburiy' });
   }
 
   const db = getDb();
-  const item = await db.get('SELECT id FROM cart_items WHERE id = ? AND user_id = ?', [id, req.user.sub]);
+  const item = await db.get(
+    'SELECT id FROM cart_items WHERE user_id = ? AND ticket_id = ?',
+    [req.user.sub, ticketId]
+  );
 
   if (!item) {
-    return res.status(404).json({ message: 'Savatcha elementi topilmadi' });
+    return res.status(404).json({ message: 'Savatchada bu chipta yo\'q' });
   }
 
-  await db.run('UPDATE cart_items SET quantity = ? WHERE id = ?', [Number(quantity), id]);
-  return res.json({ message: 'Savatcha yangilandi' });
-}
-
-async function removeCartItem(req, res) {
-  const { id } = req.params;
-  const db = getDb();
-
-  const item = await db.get('SELECT id FROM cart_items WHERE id = ? AND user_id = ?', [id, req.user.sub]);
-  if (!item) {
-    return res.status(404).json({ message: 'Savatcha elementi topilmadi' });
-  }
-
-  await db.run('DELETE FROM cart_items WHERE id = ?', [id]);
+  await db.run('DELETE FROM cart_items WHERE user_id = ? AND ticket_id = ?', [req.user.sub, ticketId]);
   return res.json({ message: 'Savatchadan o\'chirildi' });
 }
 
 module.exports = {
   getMyCart,
   addToCart,
-  updateCartItem,
-  removeCartItem
+  removeFromCart
 };

@@ -2,7 +2,6 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const bcrypt = require('bcryptjs');
-const tickets = require('../data/tickets');
 
 let db;
 
@@ -45,6 +44,8 @@ async function initializeDatabase() {
       price TEXT NOT NULL,
       class TEXT NOT NULL,
       description TEXT,
+      flight_date TEXT,
+      flight_time TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -60,24 +61,15 @@ async function initializeDatabase() {
     );
   `);
 
-  const ticketCount = await db.get('SELECT COUNT(*) AS count FROM tickets');
+  const ticketColumns = await db.all('PRAGMA table_info(tickets)');
+  const ticketColumnNames = new Set(ticketColumns.map((col) => col.name));
 
-  if (ticketCount.count === 0) {
-    for (const ticket of tickets) {
-      await db.run(
-        `INSERT INTO tickets (id, image, from_city, to_city, price, class, description)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [
-          ticket.id,
-          ticket.image,
-          ticket.from,
-          ticket.to,
-          ticket.price,
-          ticket.class,
-          `${ticket.from} -> ${ticket.to} yo'nalishi uchun ${ticket.class} klass chipta`
-        ]
-      );
-    }
+  if (!ticketColumnNames.has('flight_date')) {
+    await db.exec('ALTER TABLE tickets ADD COLUMN flight_date TEXT');
+  }
+
+  if (!ticketColumnNames.has('flight_time')) {
+    await db.exec('ALTER TABLE tickets ADD COLUMN flight_time TEXT');
   }
 
   const adminPhone = '+998900000000';

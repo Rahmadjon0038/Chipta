@@ -7,7 +7,7 @@ Demo loyiha: sayohatlar uchun online chipta sotib olish backend API.
 - Register/Login (telefon + parol)
 - JWT Access Token + Refresh Token
 - Public tickets list va ticket detail (`id` bo'yicha)
-- Cart (savatchaga qo'shish, yangilash, o'chirish)
+- Cart (savatchaga qo'shish va o'chirish)
 - Profile (`/api/users/me`)
 - Admin panel API (ticket create/update/delete)
 - Swagger documentation (`/api/docs`)
@@ -39,8 +39,7 @@ Swagger: `http://localhost:4000/api/docs`
 - `GET /api/users/me` (auth)
 - `GET /api/cart` (auth)
 - `POST /api/cart` (auth)
-- `PATCH /api/cart/:id` (auth)
-- `DELETE /api/cart/:id` (auth)
+- `DELETE /api/cart` (auth)
 - `POST /api/tickets` (admin)
 - `PATCH /api/tickets/:id` (admin)
 - `DELETE /api/tickets/:id` (admin)

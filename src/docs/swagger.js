@@ -113,33 +113,128 @@ const options = {
         get: {
           tags: ['Tickets'],
           summary: 'Barcha chiptalarni olish (public)',
-          responses: { 200: { description: 'OK' } }
+          responses: {
+            200: {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer' },
+                        image: { type: 'string' },
+                        fromCity: { type: 'string' },
+                        toCity: { type: 'string' },
+                        price: { type: 'string' },
+                        class: { type: 'string' },
+                        description: { type: 'string', nullable: true },
+                        flightDate: { type: 'string', example: '2026-03-15' },
+                        flightTime: { type: 'string', example: '14:30' },
+                        flightWeekday: { type: 'string', nullable: true, example: 'Yakshanba' },
+                        createdAt: { type: 'string' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         post: {
           tags: ['Admin Tickets'],
           summary: 'Yangi chipta qo\'shish (admin)',
           security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    image: { type: 'string', example: 'https://example.com/ticket.jpg' },
+                    fromCity: { type: 'string', example: 'Toshkent' },
+                    toCity: { type: 'string', example: 'Samarqand' },
+                    price: { type: 'string', example: '250000 so\'m' },
+                    class: { type: 'string', example: 'Business' },
+                    flightDate: { type: 'string', example: '2026-03-15' },
+                    flightTime: { type: 'string', example: '14:30' },
+                    description: { type: 'string', nullable: true, example: 'Tezkor poyezd chiptasi' }
+                  },
+                  required: ['image', 'fromCity', 'toCity', 'price', 'class', 'flightDate', 'flightTime']
+                }
+              }
+            }
+          },
           responses: { 201: { description: 'Created' } }
         }
       },
       '/api/tickets/{id}': {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' }
+          }
+        ],
         get: {
           tags: ['Tickets'],
-          summary: 'ID bo\'yicha chipta detail (public)',
-          parameters: [
-            {
-              name: 'id',
-              in: 'path',
-              required: true,
-              schema: { type: 'integer' }
-            }
-          ],
-          responses: { 200: { description: 'OK' }, 404: { description: 'Not Found' } }
+          summary: 'ID bo\'yicha chipta batafsil ma\'lumotlari (public)',
+          responses: {
+            200: {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      image: { type: 'string' },
+                      fromCity: { type: 'string' },
+                      toCity: { type: 'string' },
+                      price: { type: 'string' },
+                      class: { type: 'string' },
+                      description: { type: 'string', nullable: true },
+                      flightDate: { type: 'string', example: '2026-03-15' },
+                      flightTime: { type: 'string', example: '14:30' },
+                      flightWeekday: { type: 'string', nullable: true, example: 'Yakshanba' },
+                      createdAt: { type: 'string' },
+                      cartItemsCount: { type: 'integer' },
+                      cartTotalQuantity: { type: 'integer' }
+                    }
+                  }
+                }
+              }
+            },
+            404: { description: 'Not Found' }
+          }
         },
         patch: {
           tags: ['Admin Tickets'],
           summary: 'Chipta yangilash (admin)',
           security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    image: { type: 'string', example: 'https://example.com/ticket.jpg' },
+                    fromCity: { type: 'string', example: 'Toshkent' },
+                    toCity: { type: 'string', example: 'Buxoro' },
+                    price: { type: 'string', example: '300000 so\'m' },
+                    class: { type: 'string', example: 'Economy' },
+                    flightDate: { type: 'string', example: '2026-03-20' },
+                    flightTime: { type: 'string', example: '09:45' },
+                    description: { type: 'string', nullable: true, example: 'Yangilangan tarif' }
+                  }
+                }
+              }
+            }
+          },
           responses: { 200: { description: 'OK' } }
         },
         delete: {
@@ -168,20 +263,41 @@ const options = {
           tags: ['Cart'],
           summary: 'Savatchaga qo\'shish',
           security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    ticketId: { type: 'integer', example: 1 },
+                    quantity: { type: 'integer', example: 2 }
+                  },
+                  required: ['ticketId']
+                }
+              }
+            }
+          },
           responses: { 201: { description: 'Created' } }
-        }
-      },
-      '/api/cart/{id}': {
-        patch: {
-          tags: ['Cart'],
-          summary: 'Savatcha elementini yangilash',
-          security: [{ bearerAuth: [] }],
-          responses: { 200: { description: 'OK' } }
         },
         delete: {
           tags: ['Cart'],
           summary: 'Savatchadan o\'chirish',
           security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    ticketId: { type: 'integer', example: 1 }
+                  },
+                  required: ['ticketId']
+                }
+              }
+            }
+          },
           responses: { 200: { description: 'OK' } }
         }
       }
